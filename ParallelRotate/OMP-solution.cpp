@@ -26,4 +26,8 @@ void RotateUsingOMPEx(const std::vector<CadPt3> &points, float radians)
 	}
 }
 
+void MultiplyUsingOMP(const std::vector<float> &a, const std::vector<float> &b)
+{
+
+}
 //error C3016 : 'i' : index variable in OpenMP 'for' statement must have signed integral type

@@ -25,3 +25,8 @@ void RotateUsingPPLEx(const std::vector<CadPt3> &points, float radians)
 			Verify(p, radians, r);
 	});
 }
+
+void MultiplyUsingPPL(const std::vector<float> &a, const std::vector<float> &b)
+{
+
+}

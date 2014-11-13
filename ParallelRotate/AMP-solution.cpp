@@ -96,3 +96,8 @@ std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates)
 
 	return points;
 }
+
+void MultiplyUsingAMP(const std::vector<float> &a, const std::vector<float> &b)
+{
+
+}

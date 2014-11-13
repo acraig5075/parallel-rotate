@@ -12,11 +12,13 @@
 #include <functional>
 #include <chrono>
 #include <iostream>
+#include <random>
 
 
 const int kSize = 10000;
 const bool kVerify = false;
 const float kStep = 1.f;
+const int kSquare = 4;
 
 
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float)> &func, const std::vector<CadPt3> &p)
@@ -30,7 +32,18 @@ __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+__int64 TimeFunction(const std::function<void(const std::vector<float> &, const std::vector<float> &)> &func, const std::vector<float> &a, const std::vector<float> &b)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	func(a, b);
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
+
+std::vector<CadPt3> GetInputForRotation()
 {
 	std::vector<CadPt3> points(kSize);
 
@@ -45,6 +58,55 @@ int _tmain(int argc, _TCHAR* argv[])
 		z += 1.f;
 	}
 
+	return points;
+}
+
+std::vector<float> GetInputforMultiplication()
+{
+	std::vector<float> matrix;
+	matrix.reserve(kSquare * kSquare);
+
+	std::default_random_engine generator;
+	std::uniform_real_distribution<float> distribution(0.f, 1.f);
+
+	for (int r = 0; r < kSquare; ++r)
+	{
+		for (int c = 0; c < kSquare; ++c)
+		{
+			float value = distribution(generator);
+			matrix.push_back(value);
+		}
+	}
+
+	return matrix;
+}
+
+std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = kSquare)
+{
+	std::vector<float> transform(size * size);
+
+	int c = 0;
+	int r = 0;
+	for (auto it = matrix.cbegin(); it != matrix.cend(); ++it)
+	{
+		auto index = r * size + c;
+		transform.at(index) = *it;
+
+		++c;
+		if (c == size)
+		{
+			c = 0;
+			++r;
+		}
+	}
+
+	return transform;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector<CadPt3> points = GetInputForRotation();
+
 	AMPRuntimeWarmup();
 
 	__int64 duration1 = TimeFunction(&RotateSerially, points);
@@ -52,10 +114,29 @@ int _tmain(int argc, _TCHAR* argv[])
 	__int64 duration3 = TimeFunction(&RotateUsingOMP, points);
 	__int64 duration4 = TimeFunction(&RotateUsingAMP, points);
 
+	std::cout << "Rotating " << kSize << " points\n";
 	std::cout << duration1 << "\n";
 	std::cout << duration2 << "\n";
 	std::cout << duration3 << "\n";
 	std::cout << duration4 << "\n";
+	points.clear();
+
+	std::vector<float> matrix = GetInputforMultiplication();
+	std::vector<float> transform = TransformSquareMatrix(matrix);
+
+	__int64 duration11 = TimeFunction(&MultiplySerially, matrix, transform);
+	__int64 duration12 = TimeFunction(&MultiplyUsingPPL, matrix, transform);
+	__int64 duration13 = TimeFunction(&MultiplyUsingOMP, matrix, transform);
+	__int64 duration14 = TimeFunction(&MultiplyUsingAMP, matrix, transform);
+
+	std::cout << "Multiplying " << kSquare << "x" << kSquare << " matrices\n";
+	std::cout << duration11 << "\n";
+	std::cout << duration12 << "\n";
+	std::cout << duration13 << "\n";
+	std::cout << duration14 << "\n";
+	matrix.clear();
+	transform.clear();
+
 	return 0;
 }
 

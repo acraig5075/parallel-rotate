@@ -21,3 +21,13 @@ void RotateSeriallyEx(const std::vector<CadPt3> &points, float radians)
 			Verify(*it, radians, pt);
 	}
 }
+
+void MultiplySerially(const std::vector<float> &a, const std::vector<float> &b)
+{
+	std::vector<float> result;
+	result.reserve(a.size());
+
+	auto side = static_cast<size_t>(std::sqrt(a.size()));
+
+
+}
