@@ -49,3 +49,31 @@ bool Verify(const std::vector<CadPt3> &input, float angle, const std::vector<Cad
 
 	return true;
 }
+
+// Verify that a matrix multiplied with it's transpose is symmetric
+bool Verify(const std::vector<float> &matrix)
+{
+	auto side = static_cast<size_t>(std::sqrt(matrix.size()));
+
+	for (size_t r = 0; r < side; ++r)
+	{
+		for (size_t c = r + 1; c < side; ++c)
+		{
+			auto iUpper = r * side + c;
+			auto iLower = c * side + r;
+
+			auto upper = matrix.at(iUpper);
+			auto lower = matrix.at(iLower);
+
+			if (Float::AreEqual(upper, lower))
+				continue;
+			else
+			{
+				assert(false);
+				return false;
+			}
+		}
+	}
+
+	return true;
+}

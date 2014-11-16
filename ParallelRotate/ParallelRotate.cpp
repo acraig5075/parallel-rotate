@@ -18,7 +18,7 @@
 const int kSize = 10000;
 const bool kVerify = false;
 const float kStep = 1.f;
-const int kSquare = 4;
+const int kSquare = 512;
 
 
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float)> &func, const std::vector<CadPt3> &p)

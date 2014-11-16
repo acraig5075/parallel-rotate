@@ -99,5 +99,37 @@ std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates)
 
 void MultiplyUsingAMP(const std::vector<float> &a, const std::vector<float> &b)
 {
+	const std::vector<float> result = MultiplyUsingAMPEx(a, b);
 
+	if (kVerify)
+		Verify(result);
+}
+
+std::vector<float> MultiplyUsingAMPEx(const std::vector<float> &a, const std::vector<float> &b)
+{
+	auto side = static_cast<size_t>(std::sqrt(a.size()));
+
+	std::vector<float> result(a.size());
+
+	concurrency::array_view<const float, 2> av(side, side, a);
+	concurrency::array_view<const float, 2> bv(side, side, b);
+	concurrency::array_view<float, 2> resultv(side, side, result);
+	resultv.discard_data();
+
+	concurrency::parallel_for_each(resultv.extent, [=](concurrency::index<2> idx) restrict(amp)
+	{
+		size_t r = idx[0];
+		size_t c = idx[1];
+
+		float sum = 0.f;
+		for (size_t k = 0; k < side; ++k)
+		{
+			sum += av[r][k] + bv[k][c];
+		}
+
+		resultv[r][c] = sum;
+	});
+
+	resultv.synchronize();
+	return result;
 }
