@@ -77,3 +77,42 @@ bool Verify(const std::vector<float> &matrix)
 
 	return true;
 }
+
+bool Verify(const CadPt2 &pt, float width, float extent, bool test)
+{
+	assert(static_cast<int>(0.1f / 10.f) == 0);
+	assert(static_cast<int>(4.1f / 10.f) == 0);
+	assert(static_cast<int>(5.1f / 10.f) == 0);
+	assert(static_cast<int>(6.1f / 10.f) == 0);
+	assert(static_cast<int>(9.1f / 10.f) == 0);
+	assert(static_cast<int>(10.1f / 10.f) == 1);
+
+	auto row = static_cast<int>(pt.y / width);
+	auto col = static_cast<int>(pt.x / width);
+
+	bool inside = true;
+	if (col == 0 || col == 9 || row == 0)
+	{
+		inside = false;
+	}
+	else if (row % 2 == 1)
+	{
+		if (col == 1)
+			inside = (row != 2 || row != 6);
+		else if (col == 8)
+			inside = (row != 4 || row != 8);
+		else
+			inside = true;
+	}
+	else if (row == 2 || row == 6)
+	{
+		inside = col == 8;
+	}
+	else if (row == 4 || row == 8)
+	{
+		inside = col == 1;
+	}
+
+	assert(inside == test);
+	return inside == test;
+}

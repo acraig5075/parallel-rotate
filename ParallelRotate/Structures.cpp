@@ -12,15 +12,41 @@ bool Float::AreEqual(float a, float b)
 {
 	return fabs(a - b) <= (Accuracy + Accuracy * fabs(b));
 }
-
 bool Float::IsLessThanOrEqualsZero(float a)
 {
 	return a <= -Accuracy;
 }
-
-bool Float::IsZero(double a)
+bool Float::IsZero(float a)
 {
 	return fabs(a) <= Accuracy;
+}
+bool Float::IsLessThan(float a, float b)
+{
+	return a < (b - (Accuracy + Accuracy * fabs(b)));
+}
+bool Float::IsGreaterThan(float a, float b)
+{
+	return a >(b + (Accuracy + Accuracy * fabs(b)));
+}
+bool Float::IsLessThanOrEqual(float a, float b)
+{
+	return a <= (b + (Accuracy + Accuracy * fabs(b)));
+}
+bool Float::IsGreaterThanOrEqual(float a, float b)
+{
+	return a >= (b - (Accuracy + Accuracy * fabs(b)));
+}
+
+float Float::Divide(float a, float b)
+{
+	if (IsZero(b))
+		b = 0.0000001f;
+	return (a / b);
+}
+
+CadPt2 CadPt2::operator+ (const CadPt2 &rhs)
+{
+	return{ this->x + rhs.x, this->y + rhs.y };
 }
 
 bool CadPt3::operator== (const CadPt3 &rhs) const

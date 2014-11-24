@@ -1,5 +1,8 @@
 #pragma once;
 
+#include <vector>
+#include <algorithm>
+
 extern float kPI;
 extern float degToRad(float d);
 
@@ -9,7 +12,26 @@ struct Float
 	static const float Accuracy;
 	static bool AreEqual(float a, float b);
 	static bool IsLessThanOrEqualsZero(float a);
-	static bool Float::IsZero(double a);
+	static bool IsZero(float a);
+	static bool IsLessThan(float a, float b);
+	static bool IsLessThanOrEqual(float a, float b);
+	static bool IsGreaterThan(float a, float b);
+	static bool IsGreaterThanOrEqual(float a, float b);
+	static float Divide(float a, float b);
+};
+
+struct CadPt2
+{
+	float x = 0.f;
+	float y = 0.f;
+
+	CadPt2() = default;
+	CadPt2(float x, float y)
+		: x(x)
+		, y(y)
+	{}
+
+	CadPt2 operator+ (const CadPt2 &rhs);
 };
 
 struct CadPt3
@@ -28,16 +50,6 @@ struct CadPt3
 	bool operator== (const CadPt3 &rhs) const;
 	bool operator!= (const CadPt3 &rhs) const;
 };
-//
-//bool operator== (const CadPt3 &lhs, const CadPt3 &rhs)
-//{
-//	return (Float::AreEqual(lhs.x, rhs.x) && Float::AreEqual(lhs.y, rhs.y) && Float::AreEqual(lhs.z, rhs.z));
-//}
-//
-//bool operator!= (const CadPt3 &lhs, const CadPt3 &rhs)
-//{
-//	return !(lhs == rhs);
-//}
 
 struct CadMatrix3
 {
@@ -46,3 +58,6 @@ struct CadMatrix3
 	static CadMatrix3 MakeRotationZ(float radians);
 	CadPt3 Multiply(const CadPt3 &p) const;
 };
+
+using CadEdge = std::pair < CadPt2, CadPt2 >;
+using CadPolygon = std::vector < CadEdge > ;

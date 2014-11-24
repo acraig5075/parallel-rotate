@@ -55,3 +55,62 @@ std::vector<float> MultiplySeriallyEx(const std::vector<float> &a, const std::ve
 
 	return result;
 }
+
+void SanityTest(const CadPolygon &polygon, float width, float extent)
+{
+	bool inside = false;
+	CadPt2 pt(5.f, 5.f);
+
+	for (int i = 0; i < 9; ++i)
+	{
+		assert(inside == PointInPolySeriallyEx(pt, polygon));
+		Verify(pt, width, extent, inside);
+
+		pt.x += 10.f;
+		pt.y += 10.f;
+		inside = !inside;
+	}
+
+	pt.x = 10.1f;
+	pt.y = 20.1f;
+	assert(false == PointInPolySeriallyEx(pt, polygon));
+	Verify(pt, width, extent, false);
+}
+
+void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
+{
+	SanityTest(polygon, width, extent);
+
+	CadPt2 pt;
+	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f)
+	{
+		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f)
+		{
+			bool inside = PointInPolySeriallyEx(pt, polygon);
+
+			if (kVerify)
+				Verify(pt, width, extent, inside);
+		}
+	}
+}
+
+bool PointInPolySeriallyEx(const CadPt2 &pt, const CadPolygon &polygon)
+{
+	int inout = 0;
+
+	for (auto edge : polygon)
+	{
+		auto fst = edge.first;
+		auto snd = edge.second;
+
+		if ((Float::IsLessThanOrEqual(fst.y, pt.y) && Float::IsLessThan(pt.y, snd.y)) ||
+			(Float::IsLessThanOrEqual(snd.y, pt.y) && Float::IsLessThan(pt.y, fst.y)))
+		{
+			float tdbl1 = Float::Divide(pt.y - fst.y, snd.y - fst.y);
+			float tdbl2 = snd.x - fst.x;
+			if (Float::IsGreaterThanOrEqual(fst.x + (tdbl2 * tdbl1), pt.x))
+				inout++;
+		}
+	}
+	return (0 == inout ? false : (bool)(0 != inout % 2));
+}

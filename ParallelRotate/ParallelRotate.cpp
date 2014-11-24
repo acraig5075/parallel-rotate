@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Structures.h"
+#include "Polygon.h"
 #include "Serial-solution.h" // not parallel
 #include "PPL-solution.h"    // Parallel Patterns Library
 #include "OMP-solution.h"    // OpenMP
@@ -18,7 +19,7 @@
 const int kSize = 10000;
 const bool kVerify = false;
 const float kStep = 1.f;
-const int kSquare = 512;
+const int kSquare = 400;
 
 
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float)> &func, const std::vector<CadPt3> &p)
@@ -37,6 +38,17 @@ __int64 TimeFunction(const std::function<void(const std::vector<float> &, const 
 	auto start = std::chrono::high_resolution_clock::now();
 
 	func(a, b);
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
+
+__int64 TimeFunction(const std::function<void(const CadPolygon &, float, float)> &func, const CadPolygon &poly, float width, float extent)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	func(poly, width, extent);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
@@ -103,7 +115,7 @@ std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = 
 	return transform;
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+void Rotation()
 {
 	std::vector<CadPt3> points = GetInputForRotation();
 
@@ -119,23 +131,50 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << duration2 << "\n";
 	std::cout << duration3 << "\n";
 	std::cout << duration4 << "\n";
-	points.clear();
+	std::cout << std::endl;
 
+	points.clear();
+}
+
+void Multiplication()
+{
 	std::vector<float> matrix = GetInputforMultiplication();
 	std::vector<float> transform = TransformSquareMatrix(matrix);
 
-	__int64 duration11 = TimeFunction(&MultiplySerially, matrix, transform);
-	__int64 duration12 = TimeFunction(&MultiplyUsingPPL, matrix, transform);
-	__int64 duration13 = TimeFunction(&MultiplyUsingOMP, matrix, transform);
-	__int64 duration14 = TimeFunction(&MultiplyUsingAMP, matrix, transform);
+	__int64 duration1 = TimeFunction(&MultiplySerially, matrix, transform);
+	__int64 duration2 = TimeFunction(&MultiplyUsingPPL, matrix, transform);
+	__int64 duration3 = TimeFunction(&MultiplyUsingOMP, matrix, transform);
+	__int64 duration4 = TimeFunction(&MultiplyUsingAMP, matrix, transform);
 
 	std::cout << "Multiplying " << kSquare << "x" << kSquare << " matrices\n";
-	std::cout << duration11 << "\n";
-	std::cout << duration12 << "\n";
-	std::cout << duration13 << "\n";
-	std::cout << duration14 << "\n";
+	std::cout << duration1 << "\n";
+	std::cout << duration2 << "\n";
+	std::cout << duration3 << "\n";
+	std::cout << duration4 << "\n";
+	std::cout << std::endl;
+
 	matrix.clear();
 	transform.clear();
+}
+
+void PointInPoly()
+{
+	float width = 10.f;
+	float extent = 100.f;
+	CadPolygon polygon = MakePolygon(0, width, extent);
+
+	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
+
+	std::cout << "Point in polygon\n";
+	std::cout << duration1 << "\n";
+	std::cout << std::endl;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	Rotation();
+	Multiplication();
+	PointInPoly();
 
 	return 0;
 }

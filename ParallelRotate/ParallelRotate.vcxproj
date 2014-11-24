@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AMP-solution.h" />
+    <ClInclude Include="Polygon.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="OMP-solution.h" />
     <ClInclude Include="PPL-solution.h" />
@@ -98,6 +99,7 @@
       <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
     </ClCompile>
     <ClCompile Include="ParallelRotate.cpp" />
+    <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="PPL-solution.cpp" />
     <ClCompile Include="Serial-solution.cpp" />
     <ClCompile Include="Structures.cpp" />
