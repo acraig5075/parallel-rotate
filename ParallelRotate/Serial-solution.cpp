@@ -79,7 +79,8 @@ void SanityTest(const CadPolygon &polygon, float width, float extent)
 
 void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
 {
-	SanityTest(polygon, width, extent);
+	if (kVerify)
+		SanityTest(polygon, width, extent);
 
 	CadPt2 pt;
 	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f)

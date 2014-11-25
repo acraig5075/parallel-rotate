@@ -17,7 +17,7 @@
 
 
 const int kSize = 10000;
-const bool kVerify = false;
+const bool kVerify = true;
 const float kStep = 1.f;
 const int kSquare = 400;
 
@@ -164,16 +164,18 @@ void PointInPoly()
 	CadPolygon polygon = MakePolygon(0, width, extent);
 
 	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
+	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
 
 	std::cout << "Point in polygon\n";
 	std::cout << duration1 << "\n";
+	std::cout << duration2 << "\n";
 	std::cout << std::endl;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Rotation();
-	Multiplication();
+	//Rotation();
+	//Multiplication();
 	PointInPoly();
 
 	return 0;

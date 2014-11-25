@@ -58,3 +58,42 @@ std::vector<float> MultiplyUsingPPLEx(const std::vector<float> &a, const std::ve
 	});
 	return result;
 }
+
+
+void PointInPolyPPL(const CadPolygon &polygon, float width, float extent)
+{
+	CadPt2 pt;
+	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f)
+	{
+		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f)
+		{
+			bool inside = PointInPolyPPLEx(pt, polygon);
+
+			if (kVerify)
+				Verify(pt, width, extent, inside);
+		}
+	}
+}
+
+bool PointInPolyPPLEx(const CadPt2 &pt, const CadPolygon &polygon)
+{
+	concurrency::combinable<int> inout([](){ return 0; }); // thread-local storage, with 0 initializer
+
+	for (auto edge : polygon)
+	{
+		auto fst = edge.first;
+		auto snd = edge.second;
+
+		if ((Float::IsLessThanOrEqual(fst.y, pt.y) && Float::IsLessThan(pt.y, snd.y)) ||
+			(Float::IsLessThanOrEqual(snd.y, pt.y) && Float::IsLessThan(pt.y, fst.y)))
+		{
+			float tdbl1 = Float::Divide(pt.y - fst.y, snd.y - fst.y);
+			float tdbl2 = snd.x - fst.x;
+			if (Float::IsGreaterThanOrEqual(fst.x + (tdbl2 * tdbl1), pt.x))
+				inout.local()++;
+		}
+	}
+
+	auto val = inout.combine(std::plus<int>());
+	return (0 == val ? false : (bool)(0 != val % 2));
+}
