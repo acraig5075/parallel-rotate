@@ -101,7 +101,7 @@ std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = 
 	int r = 0;
 	for (auto it = matrix.cbegin(); it != matrix.cend(); ++it)
 	{
-		auto index = r * size + c;
+		auto index = c * size + r;
 		transform.at(index) = *it;
 
 		++c;
@@ -174,9 +174,9 @@ void PointInPoly()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//Rotation();
-	//Multiplication();
-	PointInPoly();
+	Rotation();
+	Multiplication();
+	//PointInPoly();
 
 	return 0;
 }
