@@ -174,9 +174,9 @@ void PointInPoly()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Rotation();
-	Multiplication();
-	//PointInPoly();
+	//Rotation();
+	//Multiplication();
+	PointInPoly();
 
 	return 0;
 }

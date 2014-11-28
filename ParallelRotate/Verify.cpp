@@ -113,6 +113,13 @@ bool Verify(const CadPt2 &pt, float width, float extent, bool test)
 		inside = col == 1;
 	}
 
-	assert(inside == test);
-	return inside == test;
+	if (inside == test)
+	{
+		return true;
+	}
+	else
+	{
+		assert(false);
+		return false;
+	}
 }

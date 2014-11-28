@@ -83,10 +83,24 @@ void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
 		SanityTest(polygon, width, extent);
 
 	CadPt2 pt;
-	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f)
+	int xcount = 1;
+	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
 	{
-		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f)
+		if (xcount == 10)
 		{
+			xcount = 0;
+			continue;
+		}
+
+		int ycount = 1;
+		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
+		{
+			if (ycount == 10)
+			{
+				ycount = 0;
+				continue;
+			}
+
 			bool inside = PointInPolySeriallyEx(pt, polygon);
 
 			if (kVerify)
