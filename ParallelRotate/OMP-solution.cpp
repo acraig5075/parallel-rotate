@@ -59,4 +59,58 @@ std::vector<float> MultiplyUsingOMPEx(const std::vector<float> &a, const std::ve
 	}
 	return result;
 }
+
+void PointInPolyOMP(const CadPolygon &polygon, float width, float extent)
+{
+	CadPt2 pt;
+	int xcount = 1;
+	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	{
+		if (xcount == 10)
+		{
+			xcount = 0;
+			continue;
+		}
+
+		int ycount = 1;
+		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
+		{
+			if (ycount == 10)
+			{
+				ycount = 0;
+				continue;
+			}
+
+			bool inside = PointInPolyOMPEx(pt, polygon);
+
+			if (kVerify)
+				Verify(pt, width, extent, inside);
+		}
+	}
+}
+
+bool PointInPolyOMPEx(const CadPt2 &pt, const CadPolygon &polygon)
+{
+	int inout = 0;
+
+	#pragma omp parallel for reduction(+:inout)
+	for (int i = 0; i < (int)polygon.size(); ++i)
+	{
+		CadEdge edge = polygon.at(i);
+		auto fst = edge.first;
+		auto snd = edge.second;
+
+		if ((Float::IsLessThanOrEqual(fst.y, pt.y) && Float::IsLessThan(pt.y, snd.y)) ||
+			(Float::IsLessThanOrEqual(snd.y, pt.y) && Float::IsLessThan(pt.y, fst.y)))
+		{
+			float tdbl1 = Float::Divide(pt.y - fst.y, snd.y - fst.y);
+			float tdbl2 = snd.x - fst.x;
+			if (Float::IsGreaterThanOrEqual(fst.x + (tdbl2 * tdbl1), pt.x))
+				inout++;
+		}
+	}
+
+	return (0 == inout ? false : (bool)(0 != inout % 2));
+}
+
 //error C3016 : 'i' : index variable in OpenMP 'for' statement must have signed integral type

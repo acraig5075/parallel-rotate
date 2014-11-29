@@ -165,10 +165,12 @@ void PointInPoly()
 
 	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
 	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
+	__int64 duration3 = TimeFunction(&PointInPolyOMP, polygon, width, extent);
 
 	std::cout << "Point in polygon\n";
 	std::cout << duration1 << "\n";
 	std::cout << duration2 << "\n";
+	std::cout << duration3 << "\n";
 	std::cout << std::endl;
 }
 
