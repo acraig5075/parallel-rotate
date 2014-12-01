@@ -2,22 +2,25 @@
 
 #include <vector>
 #include <algorithm>
+#include <amp_math.h>
 
 extern float kPI;
 extern float degToRad(float d);
 
 
-struct Float
+struct Float 
 {
-	static const float Accuracy;
-	static bool AreEqual(float a, float b);
-	static bool IsLessThanOrEqualsZero(float a);
-	static bool IsZero(float a);
-	static bool IsLessThan(float a, float b);
-	static bool IsLessThanOrEqual(float a, float b);
-	static bool IsGreaterThan(float a, float b);
-	static bool IsGreaterThanOrEqual(float a, float b);
-	static float Divide(float a, float b);
+	static const float Float::Accuracy;
+
+	static bool Float::AreEqual(float a, float b);
+	static bool Float::IsLessThanOrEqualsZero(float a);
+	static bool Float::IsZero(float a);
+	static bool Float::IsLessThan(float a, float b);
+	static bool Float::IsGreaterThan(float a, float b);
+	static bool Float::IsLessThanOrEqual(float a, float b);
+	static bool Float::IsGreaterThanOrEqual(float a, float b);
+
+	static float Float::Divide(float a, float b);
 };
 
 struct CadPt2

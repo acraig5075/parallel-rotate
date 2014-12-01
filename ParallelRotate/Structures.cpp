@@ -10,7 +10,7 @@ const float Float::Accuracy = 0.0001f;
 
 bool Float::AreEqual(float a, float b)
 {
-	return fabs(a - b) <= (Accuracy + Accuracy * fabs(b));
+	return concurrency::precise_math::fabs(a - b) <= (Accuracy + Accuracy * concurrency::precise_math::fabs(b));
 }
 bool Float::IsLessThanOrEqualsZero(float a)
 {
@@ -18,23 +18,23 @@ bool Float::IsLessThanOrEqualsZero(float a)
 }
 bool Float::IsZero(float a)
 {
-	return fabs(a) <= Accuracy;
+	return concurrency::precise_math::fabs(a) <= Accuracy;
 }
 bool Float::IsLessThan(float a, float b)
 {
-	return a < (b - (Accuracy + Accuracy * fabs(b)));
+	return a < (b - (Accuracy + Accuracy * concurrency::precise_math::fabs(b)));
 }
 bool Float::IsGreaterThan(float a, float b)
 {
-	return a >(b + (Accuracy + Accuracy * fabs(b)));
+	return a >(b + (Accuracy + Accuracy * concurrency::precise_math::fabs(b)));
 }
 bool Float::IsLessThanOrEqual(float a, float b)
 {
-	return a <= (b + (Accuracy + Accuracy * fabs(b)));
+	return a <= (b + (Accuracy + Accuracy * concurrency::precise_math::fabs(b)));
 }
 bool Float::IsGreaterThanOrEqual(float a, float b)
 {
-	return a >= (b - (Accuracy + Accuracy * fabs(b)));
+	return a >= (b - (Accuracy + Accuracy * concurrency::precise_math::fabs(b)));
 }
 
 float Float::Divide(float a, float b)

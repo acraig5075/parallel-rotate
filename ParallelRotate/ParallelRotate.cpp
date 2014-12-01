@@ -163,14 +163,16 @@ void PointInPoly()
 	float extent = 100.f;
 	CadPolygon polygon = MakePolygon(0, width, extent);
 
-	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
-	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
-	__int64 duration3 = TimeFunction(&PointInPolyOMP, polygon, width, extent);
+	__int64 duration1 = 0.0; //TimeFunction(&PointInPolySerially, polygon, width, extent);
+	__int64 duration2 = 0.0; //TimeFunction(&PointInPolyPPL, polygon, width, extent);
+	__int64 duration3 = 0.0; //TimeFunction(&PointInPolyOMP, polygon, width, extent);
+	__int64 duration4 = TimeFunction(&PointInPolyAMP, polygon, width, extent);
 
 	std::cout << "Point in polygon\n";
 	std::cout << duration1 << "\n";
 	std::cout << duration2 << "\n";
 	std::cout << duration3 << "\n";
+	std::cout << duration4 << "\n";
 	std::cout << std::endl;
 }
 
