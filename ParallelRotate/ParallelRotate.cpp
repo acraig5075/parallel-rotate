@@ -16,10 +16,10 @@
 #include <random>
 
 
-const int kSize = 10000;
-const bool kVerify = true;
-const float kStep = 1.f;
-const int kSquare = 400;
+const int kSize = 10000; // no. of points for rotation
+const float kStep = 1.f; // degree increment for rotation
+const int kSquare = 400; // matrix dimension for multiplication
+const bool kVerify = false; // whether to perform (slow) tests on correctness of results
 
 
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float)> &func, const std::vector<CadPt3> &p)
@@ -163,10 +163,10 @@ void PointInPoly()
 	float extent = 100.f;
 	CadPolygon polygon = MakePolygon(0, width, extent);
 
-	__int64 duration1 = 0.0; //TimeFunction(&PointInPolySerially, polygon, width, extent);
-	__int64 duration2 = 0.0; //TimeFunction(&PointInPolyPPL, polygon, width, extent);
-	__int64 duration3 = 0.0; //TimeFunction(&PointInPolyOMP, polygon, width, extent);
-	__int64 duration4 = TimeFunction(&PointInPolyAMP, polygon, width, extent);
+	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
+	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
+	__int64 duration3 = TimeFunction(&PointInPolyOMP, polygon, width, extent);
+	__int64 duration4 = 0.0; // TimeFunction(&PointInPolyAMP, polygon, width, extent);
 
 	std::cout << "Point in polygon\n";
 	std::cout << duration1 << "\n";
@@ -178,8 +178,8 @@ void PointInPoly()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//Rotation();
-	//Multiplication();
+	Rotation();
+	Multiplication();
 	PointInPoly();
 
 	return 0;
