@@ -1,7 +1,10 @@
 #include "PPL-solution.h"
 #include "Structures.h"
 #include "Verify.h"
+#include <algorithm>
 #include <ppl.h>
+#include <concurrent_vector.h>
+
 
 void RotateUsingPPL(const std::vector<CadPt3> &points, float step)
 {
@@ -110,4 +113,35 @@ bool PointInPolyPPLEx(const CadPt2 &pt, const CadPolygon &polygon)
 
 	auto val = inout.combine(std::plus<int>());
 	return (0 == val ? false : (bool)(0 != val % 2));
+}
+
+void CheckDuplicatesUsingPPL(const std::vector<CadPt2ID> &points, int gridSize)
+{
+	concurrency::concurrent_vector<std::pair<int, int>> duplicates;
+
+	concurrency::parallel_for_each(points.begin(), points.end(), [&](const CadPt2ID &outerPt)
+	{
+		for (auto innerPt : points)
+		{
+			if (innerPt.id != outerPt.id && innerPt.pt == outerPt.pt) // coordinates are the same, but id's are different
+			{
+				auto smaller = std::min<int>(innerPt.id, outerPt.id);
+				auto larger = std::max<int>(innerPt.id, outerPt.id);
+				duplicates.push_back(std::make_pair(smaller, larger));
+			}
+		}
+	});
+
+	// Copy from concurrent_vector to std::vector
+	std::vector<std::pair<int, int>> stdDuplicates;
+	stdDuplicates.insert(stdDuplicates.begin(), duplicates.begin(), duplicates.end());
+
+	// Sort vector to get pairs ordered adjacent to each other
+	std::sort(stdDuplicates.begin(), stdDuplicates.end(), &ComparePairs);
+
+	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
+	stdDuplicates.erase(std::unique(stdDuplicates.begin(), stdDuplicates.end()), stdDuplicates.end());
+
+	if (kVerify)
+		Verify(stdDuplicates, gridSize);
 }

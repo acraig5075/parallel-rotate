@@ -201,7 +201,8 @@ bool PointInPolyAMPEx(const CadPt2 &pt, const CadPolygon &polygon, array_view<co
 
 	parallel_for_each(aInout.extent, [=](index<1> idx) restrict(amp)
 	{
-		auto edge = aPolygon[idx[0]];
+		int i = idx[0];
+		auto edge = aPolygon[i];
 		float fst[] = { edge.r, edge.g };
 		float snd[] = { edge.b, edge.a };
 
@@ -215,9 +216,9 @@ bool PointInPolyAMPEx(const CadPt2 &pt, const CadPolygon &polygon, array_view<co
 				tdbl1 = (pt.y - fst[1] / snd[1] - fst[1]);
 			float tdbl2 = snd[0] - fst[0];
 			if ((fst[0] + (tdbl2 * tdbl1) >= pt.x))
-				aInout[idx[0]] = 1;
+				aInout[i] = 1;
 			else
-				aInout[idx[0]] = 0;
+				aInout[i] = 0;
 		}
 	});
 

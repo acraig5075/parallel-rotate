@@ -12,3 +12,5 @@ std::vector<float> MultiplyUsingOMPEx(const std::vector<float> &a, const std::ve
 
 void PointInPolyOMP(const CadPolygon &polygon, float width, float extent);
 bool PointInPolyOMPEx(const CadPt2 &pt, const CadPolygon &polygon);
+
+void CheckDuplicatesUsingOMP(const std::vector<CadPt2ID> &points, int gridSize);

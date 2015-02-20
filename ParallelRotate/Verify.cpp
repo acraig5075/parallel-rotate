@@ -2,6 +2,7 @@
 #include "Structures.h"
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 
 bool Verify(const CadPt3 &before, float radians, const CadPt3 &after)
@@ -122,4 +123,22 @@ bool Verify(const CadPt2 &pt, float width, float extent, bool test)
 		assert(false);
 		return false;
 	}
+}
+
+bool Verify(std::vector<std::pair<int, int>> &duplicates, size_t nExpected)
+{
+	if (nExpected != duplicates.size())
+		return false;
+	assert(nExpected == duplicates.size());
+
+	for (auto p : duplicates)
+	{
+		bool option1 = (p.first < 6000 && p.second >= 6000);
+		bool option2 = (p.first >= 6000 && p.second < 6000);
+
+		if (!option1 && !option2)
+			return false;
+		assert((option1 || option2) && option1 != option2);
+	}
+	return true;
 }

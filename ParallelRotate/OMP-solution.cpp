@@ -113,4 +113,39 @@ bool PointInPolyOMPEx(const CadPt2 &pt, const CadPolygon &polygon)
 	return (0 == inout ? false : (bool)(0 != inout % 2));
 }
 
+void CheckDuplicatesUsingOMP(const std::vector<CadPt2ID> &points, int gridSize)
+{
+	auto emptyPair = std::make_pair(0, 0);
+	std::vector<std::pair<int, int>> duplicates(points.size(), emptyPair);
+
+	#pragma omp parallel for
+	for (int i = 0; i < (int)points.size(); ++i)
+	{
+		auto outerPt = points.at(i);
+
+		for (int j = 0; j < (int)points.size(); ++j)
+		{
+			auto innerPt = points.at(j);
+
+			if (innerPt.id != outerPt.id && innerPt.pt == outerPt.pt) // coordinates are the same, but id's are different
+			{
+				auto smaller = std::min<int>(innerPt.id, outerPt.id);
+				auto larger = std::max<int>(innerPt.id, outerPt.id);
+				duplicates.at(i) = std::make_pair(smaller, larger);
+			}
+		}
+	}
+
+	// Remove default zeroed entries
+	duplicates.erase(std::remove(duplicates.begin(), duplicates.end(), emptyPair), duplicates.end());
+
+	// Sort vector to get pairs ordered adjacent to each other
+	std::sort(duplicates.begin(), duplicates.end(), &ComparePairs);
+
+	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
+	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
+
+	if (kVerify)
+		Verify(duplicates, gridSize);
+}
 //error C3016 : 'i' : index variable in OpenMP 'for' statement must have signed integral type

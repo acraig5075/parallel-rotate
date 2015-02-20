@@ -49,6 +49,11 @@ CadPt2 CadPt2::operator+ (const CadPt2 &rhs)
 	return{ this->x + rhs.x, this->y + rhs.y };
 }
 
+bool CadPt2::operator== (const CadPt2 &rhs) const
+{
+	return (Float::AreEqual(x, rhs.x) && Float::AreEqual(y, rhs.y));
+}
+
 bool CadPt3::operator== (const CadPt3 &rhs) const
 {
 	return (Float::AreEqual(x, rhs.x) && Float::AreEqual(y, rhs.y) && Float::AreEqual(z, rhs.z));
@@ -86,3 +91,12 @@ CadPt3 CadMatrix3::Multiply(const CadPt3 &p) const
 	auto z = m[2][0] * p.x + m[2][1] * p.y + m[2][2] * p.z + m[2][3];
 	return{ x, y, z };
 }
+
+bool ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b)
+{
+	if (a.first == b.first)
+		return a.second < b.second;
+	else
+		return a.first < b.first;
+}
+

@@ -12,3 +12,5 @@ std::vector<float> MultiplySeriallyEx(const std::vector<float> &a, const std::ve
 
 void PointInPolySerially(const CadPolygon &polygon, float width, float extent);
 bool PointInPolySeriallyEx(const CadPt2 &pt, const CadPolygon &polygon);
+
+void CheckDuplicatesSerially(const std::vector<CadPt2ID> &points, int gridSize);

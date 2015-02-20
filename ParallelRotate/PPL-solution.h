@@ -12,3 +12,5 @@ std::vector<float> MultiplyUsingPPLEx(const std::vector<float> &a, const std::ve
 
 void PointInPolyPPL(const CadPolygon &polygon, float width, float extent);
 bool PointInPolyPPLEx(const CadPt2 &pt, const CadPolygon &polygon);
+
+void CheckDuplicatesUsingPPL(const std::vector<CadPt2ID> &points, int gridSize);

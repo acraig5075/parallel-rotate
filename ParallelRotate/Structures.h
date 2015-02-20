@@ -35,6 +35,7 @@ struct CadPt2
 	{}
 
 	CadPt2 operator+ (const CadPt2 &rhs);
+	bool operator== (const CadPt2 &rhs) const;
 };
 
 struct CadPt3
@@ -61,6 +62,14 @@ struct CadMatrix3
 	static CadMatrix3 MakeRotationZ(float radians);
 	CadPt3 Multiply(const CadPt3 &p) const;
 };
+
+struct CadPt2ID
+{
+	CadPt2 pt;
+	int id = 0;
+};
+
+bool ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b);
 
 using CadEdge = std::pair < CadPt2, CadPt2 >;
 using CadPolygon = std::vector < CadEdge > ;
