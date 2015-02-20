@@ -16,10 +16,10 @@
 #include <random>
 
 
-const int kSize = 10000;
-const bool kVerify = true;
-const float kStep = 1.f;
-const int kSquare = 400;
+const int kSize = 10000; // no. of points for rotation
+const bool kVerify = false; // whether to perform (slow) tests on correctness of results
+const float kStep = 1.f; // degree increment for rotation
+const int kSquare = 400; // matrix dimension for multiplication
 const int kGrid = 100; // square grid size for duplicates
 
 
