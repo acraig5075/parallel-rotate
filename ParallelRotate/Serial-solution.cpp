@@ -17,7 +17,7 @@ void RotateSeriallyEx(const std::vector<CadPt3> &points, float radians)
 	{
 		CadPt3 pt = rotation.Multiply(*it);
 		
-		if (kVerify)
+		if (settings.Verify)
 			Verify(*it, radians, pt);
 	}
 }
@@ -26,7 +26,7 @@ void MultiplySerially(const std::vector<float> &a, const std::vector<float> &b)
 {
 	std::vector<float> result = MultiplySeriallyEx(a, b);
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(result);
 }
 
@@ -79,7 +79,7 @@ void SanityTest(const CadPolygon &polygon, float width, float extent)
 
 void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
 {
-	if (kVerify)
+	if (settings.Verify)
 		SanityTest(polygon, width, extent);
 
 	CadPt2 pt;
@@ -103,7 +103,7 @@ void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
 
 			bool inside = PointInPolySeriallyEx(pt, polygon);
 
-			if (kVerify)
+			if (settings.Verify)
 				Verify(pt, width, extent, inside);
 		}
 	}
@@ -154,6 +154,6 @@ void CheckDuplicatesSerially(const std::vector<CadPt2ID> &points, int gridSize)
 	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
 	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(duplicates, gridSize);
 }

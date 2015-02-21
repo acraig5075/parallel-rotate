@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Structures.h"
+#include "Settings.h"
 #include "Polygon.h"
 #include "Serial-solution.h" // not parallel
 #include "PPL-solution.h"    // Parallel Patterns Library
@@ -16,11 +17,7 @@
 #include <random>
 
 
-const int kSize = 10000; // no. of points for rotation
-const bool kVerify = false; // whether to perform (slow) tests on correctness of results
-const float kStep = 1.f; // degree increment for rotation
-const int kSquare = 400; // matrix dimension for multiplication
-const int kGrid = 100; // square grid size for duplicates
+Settings settings;
 
 
 // rotation
@@ -28,7 +25,7 @@ __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
-	func(p, kStep);
+	func(p, settings.RotationDegreeStep);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
@@ -64,7 +61,7 @@ __int64 TimeFunction(const std::function<void(const std::vector<CadPt2ID> &, int
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
-	func(points, kGrid);
+	func(points, settings.DuplicatesGridSize);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
@@ -74,13 +71,15 @@ __int64 TimeFunction(const std::function<void(const std::vector<CadPt2ID> &, int
 
 std::vector<CadPt3> GetInputForRotation()
 {
-	std::vector<CadPt3> points(kSize);
+	size_t size = settings.RotationNumPoints;
+
+	std::vector<CadPt3> points(size);
 
 	float x = 0.f;
 	float y = 0.f;
 	float z = 0.f;
 
-	for (int i = 0; i < kSize; ++i)
+	for (size_t i = 0; i < size; ++i)
 	{
 		points.at(i) = { x, y, z };
 		x += 1.f;
@@ -92,15 +91,17 @@ std::vector<CadPt3> GetInputForRotation()
 
 std::vector<float> GetInputforMultiplication()
 {
+	size_t square = settings.MultiplicationMatSize;
+
 	std::vector<float> matrix;
-	matrix.reserve(kSquare * kSquare);
+	matrix.reserve(square * square);
 
 	std::default_random_engine generator;
 	std::uniform_real_distribution<float> distribution(0.f, 1.f);
 
-	for (int r = 0; r < kSquare; ++r)
+	for (size_t r = 0; r < square; ++r)
 	{
-		for (int c = 0; c < kSquare; ++c)
+		for (size_t c = 0; c < square; ++c)
 		{
 			float value = distribution(generator);
 			matrix.push_back(value);
@@ -110,7 +111,7 @@ std::vector<float> GetInputforMultiplication()
 	return matrix;
 }
 
-std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = kSquare)
+std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = settings.MultiplicationMatSize)
 {
 	std::vector<float> transform(size * size);
 
@@ -144,10 +145,11 @@ std::vector<CadPt2ID> GetInputForDuplicates()
 	p.pt = origin;
 	p.id = id;
 	float spacing = 25.f;
+	int grid = settings.DuplicatesGridSize;
 
-	for (int row = 0; row < kGrid; ++row)
+	for (int row = 0; row < grid; ++row)
 	{
-		for (int col = 0; col < kGrid; ++col)
+		for (int col = 0; col < grid; ++col)
 		{
 			points.push_back(p);
 
@@ -178,17 +180,17 @@ void Rotation()
 
 	AMPRuntimeWarmup();
 
-	__int64 duration1 = TimeFunction(&RotateSerially, points);
-	__int64 duration2 = TimeFunction(&RotateUsingPPL, points);
-	__int64 duration3 = TimeFunction(&RotateUsingOMP, points);
-	__int64 duration4 = TimeFunction(&RotateUsingAMP, points);
+	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&RotateSerially, points);
+	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&RotateUsingPPL, points);
+	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&RotateUsingOMP, points);
+	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&RotateUsingAMP, points);
 
-	std::cout << "Rotating " << kSize << " points\n";
-	std::cout << duration1 << "\n";
-	std::cout << duration2 << "\n";
-	std::cout << duration3 << "\n";
-	std::cout << duration4 << "\n";
-	std::cout << std::endl;
+	std::cout << "Rotating " << settings.RotationNumPoints << " points\n"
+		<< duration1 << "\n"
+		<< duration2 << "\n"
+		<< duration3 << "\n"
+		<< duration4 << "\n"
+		<< std::endl;
 
 	points.clear();
 }
@@ -197,18 +199,19 @@ void Multiplication()
 {
 	std::vector<float> matrix = GetInputforMultiplication();
 	std::vector<float> transform = TransformSquareMatrix(matrix);
+	size_t square = settings.MultiplicationMatSize;
 
-	__int64 duration1 = TimeFunction(&MultiplySerially, matrix, transform);
-	__int64 duration2 = TimeFunction(&MultiplyUsingPPL, matrix, transform);
-	__int64 duration3 = TimeFunction(&MultiplyUsingOMP, matrix, transform);
-	__int64 duration4 = TimeFunction(&MultiplyUsingAMP, matrix, transform);
+	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&MultiplySerially, matrix, transform);
+	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&MultiplyUsingPPL, matrix, transform);
+	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&MultiplyUsingOMP, matrix, transform);
+	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&MultiplyUsingAMP, matrix, transform);
 
-	std::cout << "Multiplying " << kSquare << "x" << kSquare << " matrices\n";
-	std::cout << duration1 << "\n";
-	std::cout << duration2 << "\n";
-	std::cout << duration3 << "\n";
-	std::cout << duration4 << "\n";
-	std::cout << std::endl;
+	std::cout << "Multiplying " << square << "x" << square << " matrices\n"
+		<< duration1 << "\n"
+		<< duration2 << "\n"
+		<< duration3 << "\n"
+		<< duration4 << "\n"
+		<< std::endl;
 
 	matrix.clear();
 	transform.clear();
@@ -220,43 +223,61 @@ void PointInPoly()
 	float extent = 100.f;
 	CadPolygon polygon = MakePolygon(0, width, extent);
 
-	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
-	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
-	__int64 duration3 = TimeFunction(&PointInPolyOMP, polygon, width, extent);
-	__int64 duration4 = TimeFunction(&PointInPolyAMP, polygon, width, extent);
+	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, polygon, width, extent);
+	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&PointInPolyPPL, polygon, width, extent);
+	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&PointInPolyOMP, polygon, width, extent);
+	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&PointInPolyAMP, polygon, width, extent);
 
-	std::cout << "Point in polygon\n";
-	std::cout << duration1 << "\n";
-	std::cout << duration2 << "\n";
-	std::cout << duration3 << "\n";
-	std::cout << duration4 << "\n";
-	std::cout << std::endl;
+	std::cout << "Point in polygon\n"
+		<< duration1 << "\n"
+		<< duration2 << "\n"
+		<< duration3 << "\n"
+		<< duration4 << "\n"
+		<< std::endl;
 }
 
 void Duplicates()
 {
 	std::vector<CadPt2ID> points = GetInputForDuplicates();
 
-	__int64 duration1 = TimeFunction(&CheckDuplicatesSerially, points);
-	__int64 duration2 = TimeFunction(&CheckDuplicatesUsingPPL, points);
-	__int64 duration3 = TimeFunction(&CheckDuplicatesUsingOMP, points);
-	__int64 duration4 = TimeFunction(&CheckDuplicatesUsingAMP, points);
+	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&CheckDuplicatesSerially, points);
+	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&CheckDuplicatesUsingPPL, points);
+	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&CheckDuplicatesUsingOMP, points);
+	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&CheckDuplicatesUsingAMP, points);
 
-	std::cout << "Removing duplicates in " << points.size() << " points\n";
-	std::cout << duration1 << "\n";
-	std::cout << duration2 << "\n";
-	std::cout << duration3 << "\n";
-	std::cout << duration4 << "\n";
-	std::cout << std::endl;
+	std::cout << "Removing duplicates in " << points.size() << " points\n"
+		<< duration1 << "\n"
+		<< duration2 << "\n"
+		<< duration3 << "\n"
+		<< duration4 << "\n"
+		<< std::endl;
 }
 
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//Rotation();
-	//Multiplication();
-	//PointInPoly();
-	Duplicates();
+	if (settings.HasFile())
+	{
+		settings.EverythingOff();
+		settings.Read();
+	}
+	else
+	{
+		settings.EverythingOn();
+		settings.Write();
+	}
+
+	if (settings.DoRotation)
+		Rotation();
+
+	if (settings.DoMultiplication)
+		Multiplication();
+
+	if (settings.DoPointInPoly)
+		PointInPoly();
+
+	if (settings.DoDuplicates)
+		Duplicates();
 
 	return 0;
 }

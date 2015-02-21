@@ -45,7 +45,7 @@ void RotateUsingAMPEx(const std::vector<CadPt3> &points, float radians)
 	ampOutput.synchronize();
 	std::vector<CadPt3> result = TranslateToCadPt3(output);
 
-	if (kVerify)
+	if (settings.Verify)
 	{
 		for (size_t i = 0; i < points.size(); ++i)
 		{
@@ -104,7 +104,7 @@ void MultiplyUsingAMP(const std::vector<float> &a, const std::vector<float> &b)
 {
 	const std::vector<float> result = MultiplyUsingAMPEx(a, b);
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(result);
 }
 
@@ -163,7 +163,7 @@ void PointInPolyAMP(const CadPolygon &polygon, float width, float extent)
 	auto vPolygon = TranslateFromPolygon(polygon);
 	array_view<const float_4, 1> av(polygon.size(), vPolygon);
 
-	if (kVerify)
+	if (settings.Verify)
 		SanityTest(polygon, width, extent, av);
 
 	CadPt2 pt;
@@ -187,7 +187,7 @@ void PointInPolyAMP(const CadPolygon &polygon, float width, float extent)
 
 			bool inside = PointInPolyAMPEx(pt, polygon, av);
 
-			if (kVerify)
+			if (settings.Verify)
 				Verify(pt, width, extent, inside);
 		}
 	}
@@ -308,6 +308,6 @@ void CheckDuplicatesUsingAMP(const std::vector<CadPt2ID> &points, int gridSize)
 	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
 	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(duplicates, gridSize);
 }

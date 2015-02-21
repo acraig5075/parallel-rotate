@@ -2,8 +2,6 @@
 
 #include <vector>
 
-extern const bool kVerify;
-
 struct CadPt2;
 struct CadPt3;
 

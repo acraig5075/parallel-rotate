@@ -24,7 +24,7 @@ void RotateUsingPPLEx(const std::vector<CadPt3> &points, float radians)
 	{
 		CadPt3 r = rotation.Multiply(p);
 
-		if (kVerify)
+		if (settings.Verify)
 			Verify(p, radians, r);
 	});
 }
@@ -33,7 +33,7 @@ void MultiplyUsingPPL(const std::vector<float> &a, const std::vector<float> &b)
 {
 	std::vector<float> result = MultiplyUsingPPLEx(a, b);
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(result);
 }
 
@@ -86,7 +86,7 @@ void PointInPolyPPL(const CadPolygon &polygon, float width, float extent)
 
 			bool inside = PointInPolyPPLEx(pt, polygon);
 
-			if (kVerify)
+			if (settings.Verify)
 				Verify(pt, width, extent, inside);
 		}
 	}
@@ -143,6 +143,6 @@ void CheckDuplicatesUsingPPL(const std::vector<CadPt2ID> &points, int gridSize)
 	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
 	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(duplicates, gridSize);
 }

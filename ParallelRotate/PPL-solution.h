@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Structures.h"
+#include "Settings.h"
 
-extern const bool kVerify;
+extern Settings settings;
 
 void RotateUsingPPL(const std::vector<CadPt3> &points, float step);
 void RotateUsingPPLEx(const std::vector<CadPt3> &points, float radians);

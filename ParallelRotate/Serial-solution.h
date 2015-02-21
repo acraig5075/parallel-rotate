@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Structures.h"
+#include "Settings.h"
 
-extern const bool kVerify;
+extern Settings settings;
 
 void RotateSerially(const std::vector<CadPt3> &points, float step);
 void RotateSeriallyEx(const std::vector<CadPt3> &points, float radians);

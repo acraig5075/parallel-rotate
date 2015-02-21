@@ -21,7 +21,7 @@ void RotateUsingOMPEx(const std::vector<CadPt3> &points, float radians)
 		CadPt3 p = points[i];
 		CadPt3 r = rotation.Multiply(p);
 
-		if (kVerify)
+		if (settings.Verify)
 			Verify(p, radians, r);
 	}
 }
@@ -30,7 +30,7 @@ void MultiplyUsingOMP(const std::vector<float> &a, const std::vector<float> &b)
 {
 	std::vector<float> result = MultiplyUsingOMPEx(a, b);
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(result);
 }
 
@@ -83,7 +83,7 @@ void PointInPolyOMP(const CadPolygon &polygon, float width, float extent)
 
 			bool inside = PointInPolyOMPEx(pt, polygon);
 
-			if (kVerify)
+			if (settings.Verify)
 				Verify(pt, width, extent, inside);
 		}
 	}
@@ -146,7 +146,7 @@ void CheckDuplicatesUsingOMP(const std::vector<CadPt2ID> &points, int gridSize)
 	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
 	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
 
-	if (kVerify)
+	if (settings.Verify)
 		Verify(duplicates, gridSize);
 }
 //error C3016 : 'i' : index variable in OpenMP 'for' statement must have signed integral type
