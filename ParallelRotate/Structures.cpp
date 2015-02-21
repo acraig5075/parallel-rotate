@@ -92,7 +92,14 @@ CadPt3 CadMatrix3::Multiply(const CadPt3 &p) const
 	return{ x, y, z };
 }
 
-bool ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b)
+auto OrderPair(std::pair<int, int> &p) -> std::pair<int, int>
+{
+	if (p.first < p.second)
+		std::swap(p.first, p.second);
+	return p;
+}
+
+auto ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b) -> bool
 {
 	if (a.first == b.first)
 		return a.second < b.second;

@@ -127,18 +127,18 @@ bool Verify(const CadPt2 &pt, float width, float extent, bool test)
 
 bool Verify(std::vector<std::pair<int, int>> &duplicates, size_t nExpected)
 {
+	assert(nExpected == duplicates.size());
 	if (nExpected != duplicates.size())
 		return false;
-	assert(nExpected == duplicates.size());
 
 	for (auto p : duplicates)
 	{
-		bool option1 = (p.first < 6000 && p.second >= 6000);
-		bool option2 = (p.first >= 6000 && p.second < 6000);
+		bool option1 = (p.first < 100000 && p.second >= 100000);
+		bool option2 = (p.first >= 100000 && p.second < 100000);
 
+		assert((option1 || option2) && option1 != option2);
 		if (!option1 && !option2)
 			return false;
-		assert((option1 || option2) && option1 != option2);
 	}
 	return true;
 }

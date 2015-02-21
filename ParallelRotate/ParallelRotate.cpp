@@ -23,6 +23,7 @@ const int kSquare = 400; // matrix dimension for multiplication
 const int kGrid = 100; // square grid size for duplicates
 
 
+// rotation
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float)> &func, const std::vector<CadPt3> &p)
 {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -34,6 +35,7 @@ __int64 TimeFunction(const std::function<void(const std::vector<CadPt3> &, float
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
+// multiplication
 __int64 TimeFunction(const std::function<void(const std::vector<float> &, const std::vector<float> &)> &func, const std::vector<float> &a, const std::vector<float> &b)
 {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -45,6 +47,7 @@ __int64 TimeFunction(const std::function<void(const std::vector<float> &, const 
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
+// point-in-poly
 __int64 TimeFunction(const std::function<void(const CadPolygon &, float, float)> &func, const CadPolygon &poly, float width, float extent)
 {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -56,6 +59,7 @@ __int64 TimeFunction(const std::function<void(const CadPolygon &, float, float)>
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
+// duplicates
 __int64 TimeFunction(const std::function<void(const std::vector<CadPt2ID> &, int)> &func, const std::vector<CadPt2ID> &points)
 {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -132,14 +136,14 @@ std::vector<CadPt2ID> GetInputForDuplicates()
 {
 	std::vector<CadPt2ID> points;
 
-	int id = 5000;
-	int duplicateID = 6000;
+	int id = 1000;
+	int duplicateID = 100000;
 
-	CadPt2 origin(50000.F, 50000.F);
+	CadPt2 origin(50000.f, 50000.f);
 	CadPt2ID p;
 	p.pt = origin;
 	p.id = id;
-	float spacing = 25.F;
+	float spacing = 25.f;
 
 	for (int row = 0; row < kGrid; ++row)
 	{
@@ -216,9 +220,9 @@ void PointInPoly()
 	float extent = 100.f;
 	CadPolygon polygon = MakePolygon(0, width, extent);
 
-	__int64 duration1 = 0; //TimeFunction(&PointInPolySerially, polygon, width, extent);
-	__int64 duration2 = 0; //TimeFunction(&PointInPolyPPL, polygon, width, extent);
-	__int64 duration3 = 0; //TimeFunction(&PointInPolyOMP, polygon, width, extent);
+	__int64 duration1 = TimeFunction(&PointInPolySerially, polygon, width, extent);
+	__int64 duration2 = TimeFunction(&PointInPolyPPL, polygon, width, extent);
+	__int64 duration3 = TimeFunction(&PointInPolyOMP, polygon, width, extent);
 	__int64 duration4 = TimeFunction(&PointInPolyAMP, polygon, width, extent);
 
 	std::cout << "Point in polygon\n";
@@ -236,7 +240,7 @@ void Duplicates()
 	__int64 duration1 = TimeFunction(&CheckDuplicatesSerially, points);
 	__int64 duration2 = TimeFunction(&CheckDuplicatesUsingPPL, points);
 	__int64 duration3 = TimeFunction(&CheckDuplicatesUsingOMP, points);
-	__int64 duration4 = 0; //TimeFunction(&CheckDuplicatesUsingAMP, points);
+	__int64 duration4 = TimeFunction(&CheckDuplicatesUsingAMP, points);
 
 	std::cout << "Removing duplicates in " << points.size() << " points\n";
 	std::cout << duration1 << "\n";

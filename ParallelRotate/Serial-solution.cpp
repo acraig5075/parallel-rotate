@@ -140,12 +140,13 @@ void CheckDuplicatesSerially(const std::vector<CadPt2ID> &points, int gridSize)
 		{
 			if (innerPt.id != outerPt.id && innerPt.pt == outerPt.pt) // coordinates are the same, but id's are different
 			{
-				auto smaller = std::min<int>(innerPt.id, outerPt.id);
-				auto larger = std::max<int>(innerPt.id, outerPt.id);
-				duplicates.push_back(std::make_pair(smaller, larger));
+				duplicates.push_back(std::make_pair(innerPt.id, outerPt.id));
 			}
 		}
 	}
+
+	// Ensure first member of pair is less than second
+	std::transform(duplicates.begin(), duplicates.end(), duplicates.begin(), &OrderPair);
 
 	// Sort vector to get pairs ordered adjacent to each other
 	std::sort(duplicates.begin(), duplicates.end(), &ComparePairs);

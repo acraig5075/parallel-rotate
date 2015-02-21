@@ -69,7 +69,8 @@ struct CadPt2ID
 	int id = 0;
 };
 
-bool ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b);
+auto OrderPair(std::pair<int, int> &p) -> std::pair<int, int>;
+auto ComparePairs(const std::pair<int, int> &a, const std::pair<int, int> &b) -> bool;
 
 using CadEdge = std::pair < CadPt2, CadPt2 >;
 using CadPolygon = std::vector < CadEdge > ;
