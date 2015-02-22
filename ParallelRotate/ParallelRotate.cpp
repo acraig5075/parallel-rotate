@@ -45,11 +45,11 @@ __int64 TimeFunction(const std::function<void(const std::vector<float> &, const 
 }
 
 // point-in-poly
-__int64 TimeFunction(const std::function<void(const CadPolygon &, float, float)> &func, const CadPolygon &poly, float width, float extent)
+__int64 TimeFunction(const std::function<void(const std::vector<CadPt2> &, const CadPolygon &, float, float)> &func, const std::vector<CadPt2> &points, const CadPolygon &poly, float width, float extent)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
-	func(poly, width, extent);
+	func(points, poly, width, extent);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
@@ -133,6 +133,36 @@ std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = 
 	return transform;
 }
 
+std::vector<CadPt2> GetInputForPointInPoly(float extent)
+{
+	std::vector<CadPt2> points;
+
+	CadPt2 pt;
+	int xcount = 1;
+	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	{
+		if (xcount == 10)
+		{
+			xcount = 0;
+			continue;
+		}
+
+		int ycount = 1;
+		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
+		{
+			if (ycount == 10)
+			{
+				ycount = 0;
+				continue;
+			}
+
+			points.push_back(pt);
+		}
+	}
+
+	return points;
+}
+
 std::vector<CadPt2ID> GetInputForDuplicates()
 {
 	std::vector<CadPt2ID> points;
@@ -186,10 +216,10 @@ void Rotation()
 	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&RotateUsingAMP, points);
 
 	std::cout << "Rotating " << settings.RotationNumPoints << " points\n"
-		<< duration1 << "\n"
-		<< duration2 << "\n"
-		<< duration3 << "\n"
-		<< duration4 << "\n"
+		<< "Serial  = " << duration1 << "\n"
+		<< "PPL     = " << duration2 << "\n"
+		<< "OpenMP  = " << duration3 << "\n"
+		<< "C++ AMP = " << duration4 << "\n"
 		<< std::endl;
 
 	points.clear();
@@ -207,10 +237,10 @@ void Multiplication()
 	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&MultiplyUsingAMP, matrix, transform);
 
 	std::cout << "Multiplying " << square << "x" << square << " matrices\n"
-		<< duration1 << "\n"
-		<< duration2 << "\n"
-		<< duration3 << "\n"
-		<< duration4 << "\n"
+		<< "Serial  = " << duration1 << "\n"
+		<< "PPL     = " << duration2 << "\n"
+		<< "OpenMP  = " << duration3 << "\n"
+		<< "C++ AMP = " << duration4 << "\n"
 		<< std::endl;
 
 	matrix.clear();
@@ -221,18 +251,20 @@ void PointInPoly()
 {
 	float width = 10.f;
 	float extent = 100.f;
-	CadPolygon polygon = MakePolygon(0, width, extent);
 
-	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, polygon, width, extent);
-	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&PointInPolyPPL, polygon, width, extent);
-	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&PointInPolyOMP, polygon, width, extent);
-	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&PointInPolyAMP, polygon, width, extent);
+	CadPolygon polygon = MakePolygon(0, width, extent);
+	std::vector<CadPt2> points = GetInputForPointInPoly(extent);
+
+	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, points, polygon, width, extent);
+	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&PointInPolyPPL, points, polygon, width, extent);
+	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&PointInPolyOMP, points, polygon, width, extent);
+	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&PointInPolyAMP, points, polygon, width, extent);
 
 	std::cout << "Point in polygon\n"
-		<< duration1 << "\n"
-		<< duration2 << "\n"
-		<< duration3 << "\n"
-		<< duration4 << "\n"
+		<< "Serial  = " << duration1 << "\n"
+		<< "PPL     = " << duration2 << "\n"
+		<< "OpenMP  = " << duration3 << "\n"
+		<< "C++ AMP = " << duration4 << "\n"
 		<< std::endl;
 }
 
@@ -246,10 +278,10 @@ void Duplicates()
 	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&CheckDuplicatesUsingAMP, points);
 
 	std::cout << "Removing duplicates in " << points.size() << " points\n"
-		<< duration1 << "\n"
-		<< duration2 << "\n"
-		<< duration3 << "\n"
-		<< duration4 << "\n"
+		<< "Serial  = " << duration1 << "\n"
+		<< "PPL     = " << duration2 << "\n"
+		<< "OpenMP  = " << duration3 << "\n"
+		<< "C++ AMP = " << duration4 << "\n"
 		<< std::endl;
 }
 

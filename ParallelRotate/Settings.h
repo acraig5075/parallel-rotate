@@ -3,6 +3,8 @@
 
 struct Settings
 {
+	enum EPointInPolyWhichLoop { ParalleliseInnerLoop, ParalleliseOuterLoop };
+
 	Settings();
 	~Settings();
 
@@ -39,6 +41,7 @@ struct Settings
 	size_t MultiplicationMatSize = 400;
 
 	// Point-in-poly
+	EPointInPolyWhichLoop PointInPolyWhichLoop;
 
 	// Duplicates
 	size_t DuplicatesGridSize = 100;

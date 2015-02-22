@@ -60,32 +60,14 @@ std::vector<float> MultiplyUsingOMPEx(const std::vector<float> &a, const std::ve
 	return result;
 }
 
-void PointInPolyOMP(const CadPolygon &polygon, float width, float extent)
+void PointInPolyOMP(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	CadPt2 pt;
-	int xcount = 1;
-	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	for (auto pt : points)
 	{
-		if (xcount == 10)
-		{
-			xcount = 0;
-			continue;
-		}
+		bool inside = PointInPolyOMPEx(pt, polygon);
 
-		int ycount = 1;
-		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
-		{
-			if (ycount == 10)
-			{
-				ycount = 0;
-				continue;
-			}
-
-			bool inside = PointInPolyOMPEx(pt, polygon);
-
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		}
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
 	}
 }
 

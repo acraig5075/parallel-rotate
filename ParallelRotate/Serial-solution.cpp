@@ -2,6 +2,7 @@
 #include "Structures.h"
 #include "Verify.h"
 #include <cassert>
+#include <iostream>
 
 void RotateSerially(const std::vector<CadPt3> &points, float step)
 {
@@ -77,35 +78,17 @@ void SanityTest(const CadPolygon &polygon, float width, float extent)
 	Verify(pt, width, extent, false);
 }
 
-void PointInPolySerially(const CadPolygon &polygon, float width, float extent)
+void PointInPolySerially(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
 	if (settings.Verify)
 		SanityTest(polygon, width, extent);
 
-	CadPt2 pt;
-	int xcount = 1;
-	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	for (auto pt : points)
 	{
-		if (xcount == 10)
-		{
-			xcount = 0;
-			continue;
-		}
+		bool inside = PointInPolySeriallyEx(pt, polygon);
 
-		int ycount = 1;
-		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
-		{
-			if (ycount == 10)
-			{
-				ycount = 0;
-				continue;
-			}
-
-			bool inside = PointInPolySeriallyEx(pt, polygon);
-
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		}
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
 	}
 }
 

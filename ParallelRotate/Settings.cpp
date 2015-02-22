@@ -98,6 +98,19 @@ namespace
 		else
 			return static_cast<float>(std::atof(val.c_str()));
 	}
+
+	Settings::EPointInPolyWhichLoop InnerOuterValue(string &val)
+	{
+		if (val.empty())
+			return Settings::ParalleliseInnerLoop;
+
+		std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+
+		if (val == "outer" || val == "out" || val == "o")
+			return Settings::ParalleliseOuterLoop;
+		else
+			return Settings::ParalleliseInnerLoop;
+	}
 }
 
 void Settings::Read()
@@ -142,6 +155,8 @@ void Settings::Read()
 				RotationDegreeStep = FloatValue(value);
 			else if (name == "MULTIPLICATION-MAT-SIZE")
 				MultiplicationMatSize = IntegerValue(value);
+			else if (name == "POINT-IN-POLY-WHICH-LOOP")
+				PointInPolyWhichLoop = InnerOuterValue(value);
 			else if (name == "DUPLICATES-GRID-SIZE")
 				DuplicatesGridSize = IntegerValue(value);
 
@@ -191,6 +206,7 @@ void Settings::Write()
 		<< '\n';
 
 	out << "# Point-in-poly\n"
+		<< setw(30) << std::left << "POINT-IN-POLY-WHICH-LOOP" << "= " << (PointInPolyWhichLoop == ParalleliseInnerLoop ? "INNER\n" : "OUTER\n")
 		<< '\n';
 
 	out << "# Duplicates\n"

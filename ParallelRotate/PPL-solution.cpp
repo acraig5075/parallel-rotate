@@ -1,5 +1,6 @@
 #include "PPL-solution.h"
 #include "Structures.h"
+#include "Serial-solution.h"
 #include "Verify.h"
 #include <algorithm>
 #include <ppl.h>
@@ -63,32 +64,28 @@ std::vector<float> MultiplyUsingPPLEx(const std::vector<float> &a, const std::ve
 }
 
 
-void PointInPolyPPL(const CadPolygon &polygon, float width, float extent)
+void PointInPolyPPL(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	CadPt2 pt;
-	int xcount = 1;
-	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
 	{
-		if (xcount == 10)
+		for (auto pt : points)
 		{
-			xcount = 0;
-			continue;
-		}
-
-		int ycount = 1;
-		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
-		{
-			if (ycount == 10)
-			{
-				ycount = 0;
-				continue;
-			}
-
 			bool inside = PointInPolyPPLEx(pt, polygon);
 
 			if (settings.Verify)
 				Verify(pt, width, extent, inside);
 		}
+	}
+	else // Settings::ParalleliseOuterLoop
+	{
+		concurrency::parallel_for_each(points.begin(), points.end(), 
+		[&](const CadPt2 &pt)
+		{
+			bool inside = PointInPolySeriallyEx(pt, polygon);
+
+			if (settings.Verify)
+				Verify(pt, width, extent, inside);
+		});
 	}
 }
 
