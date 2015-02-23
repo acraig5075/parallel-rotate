@@ -1,5 +1,6 @@
 #include "OMP-solution.h"
 #include "Structures.h"
+#include "Serial-solution.h"
 #include "Verify.h"
 #include <cassert>
 
@@ -62,12 +63,31 @@ std::vector<float> MultiplyUsingOMPEx(const std::vector<float> &a, const std::ve
 
 void PointInPolyOMP(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	for (auto pt : points)
+	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
 	{
-		bool inside = PointInPolyOMPEx(pt, polygon);
+		// parallelise inner loop, point-in-point test
+		for (auto pt : points)
+		{
+			bool inside = PointInPolyOMPEx(pt, polygon);
 
-		if (settings.Verify)
-			Verify(pt, width, extent, inside);
+			if (settings.Verify)
+				Verify(pt, width, extent, inside);
+		}
+	}
+	else
+	{
+		// parallelise outer loop, serial point-in-point test
+		int size = points.size();
+
+		#pragma omp parallel for
+		for (int i = 0; i < size; ++i)
+		{
+			CadPt2 pt = points[i];
+			bool inside = PointInPolySeriallyEx(pt, polygon);
+
+			if (settings.Verify)
+				Verify(pt, width, extent, inside);
+		}
 	}
 }
 

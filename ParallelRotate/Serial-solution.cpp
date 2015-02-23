@@ -80,9 +80,6 @@ void SanityTest(const CadPolygon &polygon, float width, float extent)
 
 void PointInPolySerially(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	if (settings.Verify)
-		SanityTest(polygon, width, extent);
-
 	for (auto pt : points)
 	{
 		bool inside = PointInPolySeriallyEx(pt, polygon);

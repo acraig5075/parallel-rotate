@@ -160,11 +160,10 @@ void SanityTest(const CadPolygon &polygon, float width, float extent, array_view
 
 void PointInPolyAMP(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
+	return; // fixme, not working
+
 	auto vPolygon = TranslateFromPolygon(polygon);
 	array_view<const float_4, 1> av(polygon.size(), vPolygon);
-
-	if (settings.Verify)
-		SanityTest(polygon, width, extent, av);
 
 	for (auto pt : points)
 	{

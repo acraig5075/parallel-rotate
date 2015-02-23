@@ -68,6 +68,7 @@ void PointInPolyPPL(const std::vector<CadPt2> &points, const CadPolygon &polygon
 {
 	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
 	{
+		// parallelise inner loop, point-in-point test
 		for (auto pt : points)
 		{
 			bool inside = PointInPolyPPLEx(pt, polygon);
@@ -76,9 +77,10 @@ void PointInPolyPPL(const std::vector<CadPt2> &points, const CadPolygon &polygon
 				Verify(pt, width, extent, inside);
 		}
 	}
-	else // Settings::ParalleliseOuterLoop
+	else
 	{
-		concurrency::parallel_for_each(points.begin(), points.end(), 
+		// parallelise outer loop, serial point-in-point test
+		concurrency::parallel_for_each(points.begin(), points.end(),
 		[&](const CadPt2 &pt)
 		{
 			bool inside = PointInPolySeriallyEx(pt, polygon);
