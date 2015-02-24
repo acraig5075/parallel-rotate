@@ -1,8 +1,6 @@
 #include "OMP-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <cassert>
 
 
 void MultiplyUsingOMP(const std::vector<float> &a, const std::vector<float> &b)

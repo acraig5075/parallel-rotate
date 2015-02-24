@@ -133,13 +133,13 @@ std::vector<float> TransformSquareMatrix(std::vector<float> &matrix, int size = 
 	return transform;
 }
 
-std::vector<CadPt2> GetInputForPointInPoly(float extent)
+std::vector<CadPt2> GetInputForPointInPoly(float density, float extent)
 {
 	std::vector<CadPt2> points;
 
 	CadPt2 pt;
 	int xcount = 1;
-	for (pt.x = 0.1f; pt.x < extent; pt.x += .1f, ++xcount)
+	for (pt.x = density; pt.x < extent; pt.x += density, ++xcount)
 	{
 		if (xcount == 10)
 		{
@@ -148,7 +148,7 @@ std::vector<CadPt2> GetInputForPointInPoly(float extent)
 		}
 
 		int ycount = 1;
-		for (pt.y = 0.1f; pt.y < extent; pt.y += .1f, ++ycount)
+		for (pt.y = density; pt.y < extent; pt.y += density, ++ycount)
 		{
 			if (ycount == 10)
 			{
@@ -251,21 +251,39 @@ void PointInPoly()
 {
 	float width = 10.f;
 	float extent = 100.f;
+	float density = settings.PointInPolyGridDensity;
 
-	CadPolygon polygon = MakePolygon(0, width, extent);
-	std::vector<CadPt2> points = GetInputForPointInPoly(extent);
+	CadPolygon polygon = MakePolygon(width);
+	std::vector<CadPt2> points = GetInputForPointInPoly(density, extent);
 
-	__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, points, polygon, width, extent);
-	__int64 duration2 = !settings.UsePpl    ? 0 : TimeFunction(&PointInPolyPPL, points, polygon, width, extent);
-	__int64 duration3 = !settings.UseOmp    ? 0 : TimeFunction(&PointInPolyOMP, points, polygon, width, extent);
-	__int64 duration4 = !settings.UseAmp    ? 0 : TimeFunction(&PointInPolyAMP, points, polygon, width, extent);
+	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
+	{
+		__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, points, polygon, width, extent);
+		__int64 duration2 = !settings.UsePpl ? 0 : TimeFunction(&PointInPolyPPL, points, polygon, width, extent);
+		__int64 duration3 = !settings.UseOmp ? 0 : TimeFunction(&PointInPolyOMP, points, polygon, width, extent);
+		__int64 duration4 = !settings.UseAmp ? 0 : TimeFunction(&PointInPolyAMP, points, polygon, width, extent);
 
-	std::cout << "Point in polygon\n"
-		<< "Serial  = " << duration1 << "\n"
-		<< "PPL     = " << duration2 << "\n"
-		<< "OpenMP  = " << duration3 << "\n"
-		<< "C++ AMP = " << duration4 << "\n"
-		<< std::endl;
+		std::cout << "Point in polygon: " << points.size() << " points, " << polygon.size() << " sided polygon\n"
+			<< "Serial  = " << duration1 << "\n"
+			<< "PPL     = " << duration2 << "\n"
+			<< "OpenMP  = " << duration3 << "\n"
+			<< "C++ AMP = " << duration4 << "\n"
+			<< std::endl;
+	}
+	else
+	{
+		__int64 duration1 = !settings.UseSerial ? 0 : TimeFunction(&PointInPolySerially, points, polygon, width, extent);
+		__int64 duration2 = !settings.UsePpl ? 0 : TimeFunction(&PointInPolyPPL2, points, polygon, width, extent);
+		__int64 duration3 = !settings.UseOmp ? 0 : TimeFunction(&PointInPolyOMP2, points, polygon, width, extent);
+		__int64 duration4 = !settings.UseAmp ? 0 : TimeFunction(&PointInPolyAMP, points, polygon, width, extent);
+
+		std::cout << "Point in polygon (2): " << points.size() << " points, " << polygon.size() << " sided polygon\n"
+			<< "Serial  = " << duration1 << "\n"
+			<< "PPL     = " << duration2 << "\n"
+			<< "OpenMP  = " << duration3 << "\n"
+			<< "C++ AMP = " << duration4 << "\n"
+			<< std::endl;
+	}
 }
 
 void Duplicates()

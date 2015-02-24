@@ -1,8 +1,6 @@
 #include "AMP-solution.h"
 #include "Structures.h"
 #include "Verify.h"
-#include <algorithm>
-#include <cassert>
 #include <numeric>
 
 using namespace concurrency;

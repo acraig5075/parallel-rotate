@@ -1,8 +1,6 @@
 #include "PPL-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <algorithm>
 #include <ppl.h>
 #include <concurrent_vector.h>
 
@@ -15,10 +13,7 @@ void RotateUsingPPL(const std::vector<CadPt3> &points, float step)
 
 void RotateUsingPPLEx(const std::vector<CadPt3> &points, float radians)
 {
-	std::vector<CadPt3> result;
-	result.reserve(points.size());
-
-	CadMatrix3 rotation = CadMatrix3::MakeRotationZ(radians);
+	auto rotation = CadMatrix3::MakeRotationZ(radians);
 
 	concurrency::parallel_for_each(points.begin(), points.end(), 
 	[&](const CadPt3 &p)

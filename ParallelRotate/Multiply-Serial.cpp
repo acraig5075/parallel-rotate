@@ -1,8 +1,6 @@
 #include "Serial-solution.h"
 #include "Structures.h"
 #include "Verify.h"
-#include <cassert>
-#include <iostream>
 
 void MultiplySerially(const std::vector<float> &a, const std::vector<float> &b)
 {

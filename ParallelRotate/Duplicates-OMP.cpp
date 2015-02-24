@@ -1,6 +1,5 @@
 #include "OMP-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
 #include <cassert>
 

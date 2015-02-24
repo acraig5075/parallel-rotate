@@ -1,7 +1,6 @@
 #include "AMP-solution.h"
 #include "Structures.h"
 #include "Verify.h"
-#include <algorithm>
 #include <cassert>
 #include <numeric>
 
@@ -12,15 +11,15 @@ std::vector<float> TranslateFromCadPt3(const std::vector<CadPt3> &points);
 std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates);
 
 
+float RowMultiply(float col1, float col2, float col3, float x, float y, float z) restrict(amp)
+{
+	return x * col1 + y * col2 + z * col3;
+}
+
 void RotateUsingAMP(const std::vector<CadPt3> &points, float step)
 {
 	for (float d = step; d <= 360.f; d += step)
 		RotateUsingAMPEx(points, degToRad(d));
-}
-
-float RowMultiply(float col1, float col2, float col3, float x, float y, float z) restrict(amp)
-{
-	return x * col1 + y * col2 + z * col3;
 }
 
 void RotateUsingAMPEx(const std::vector<CadPt3> &points, float radians)
@@ -58,13 +57,6 @@ void RotateUsingAMPEx(const std::vector<CadPt3> &points, float radians)
 }
 
 
-void AMPRuntimeWarmup()
-{
-	std::vector<CadPt3> points = { { 0.f, 0.f, 0.f } };
-	RotateUsingAMPEx(points, 0.f);
-}
-
-
 std::vector<float> TranslateFromCadPt3(const std::vector<CadPt3> &points)
 {
 	std::vector<float> ordinates;
@@ -98,3 +90,9 @@ std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates)
 	return points;
 }
 
+
+void AMPRuntimeWarmup()
+{
+	std::vector<CadPt3> points = { { 0.f, 0.f, 0.f } };
+	RotateUsingAMPEx(points, 0.f);
+}

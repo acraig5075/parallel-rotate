@@ -1,8 +1,6 @@
 #include "OMP-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <cassert>
 
 void RotateUsingOMP(const std::vector<CadPt3> &points, float step)
 {
@@ -12,11 +10,11 @@ void RotateUsingOMP(const std::vector<CadPt3> &points, float step)
 
 void RotateUsingOMPEx(const std::vector<CadPt3> &points, float radians)
 {
-	CadMatrix3 rotation = CadMatrix3::MakeRotationZ(radians);
+	auto rotation = CadMatrix3::MakeRotationZ(radians);
 
 	int size = static_cast<int>(points.size());
 
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 0; i < size; ++i)
 	{
 		CadPt3 p = points[i];

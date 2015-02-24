@@ -41,6 +41,7 @@ struct Settings
 	size_t MultiplicationMatSize = 400;
 
 	// Point-in-poly
+	float PointInPolyGridDensity = 0.1f;
 	EPointInPolyWhichLoop PointInPolyWhichLoop;
 
 	// Duplicates

@@ -1,36 +1,18 @@
 #include "OMP-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <cassert>
+#include "Serial-solution.h"
 
+// Serial outer loop, and parallel inner point-in-poly test
 void PointInPolyOMP(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
-	{
 		// parallelise inner loop, point-in-point test
-		for (auto pt : points)
-		{
-			bool inside = PointInPolyOMPEx(pt, polygon);
-
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		}
-	}
-	else
+	for (auto pt : points)
 	{
-		// parallelise outer loop, serial point-in-point test
-		int size = points.size();
+		bool inside = PointInPolyOMPEx(pt, polygon);
 
-#pragma omp parallel for
-		for (int i = 0; i < size; ++i)
-		{
-			CadPt2 pt = points[i];
-			bool inside = PointInPolySeriallyEx(pt, polygon);
-
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		}
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
 	}
 }
 
@@ -57,3 +39,21 @@ bool PointInPolyOMPEx(const CadPt2 &pt, const CadPolygon &polygon)
 
 	return (0 == inout ? false : (bool)(0 != inout % 2));
 }
+
+// Parallel outer loop, serial inner point-in-poly test
+void PointInPolyOMP2(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
+{
+	// parallelise outer loop, serial point-in-point test
+	int size = points.size();
+
+#pragma omp parallel for
+	for (int i = 0; i < size; ++i)
+	{
+		CadPt2 pt = points[i];
+		bool inside = PointInPolySeriallyEx(pt, polygon);
+
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
+	}
+}
+

@@ -1,8 +1,6 @@
 #include "Serial-solution.h"
 #include "Structures.h"
 #include "Verify.h"
-#include <cassert>
-#include <iostream>
 
 void CheckDuplicatesSerially(const std::vector<CadPt2ID> &points, int gridSize)
 {

@@ -1,7 +1,7 @@
 #include "Polygon.h"
 #include <iostream>
 
-CadPolygon MakePolygon(int density, float width, float extent)
+CadPolygon MakePolygon(float width)
 {
 	CadPt2 p0 = { width, width };
 	CadPt2 p1 = p0 + CadPt2(80.f, 0.f);

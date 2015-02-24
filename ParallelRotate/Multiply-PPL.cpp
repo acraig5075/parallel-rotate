@@ -1,8 +1,6 @@
 #include "PPL-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <algorithm>
 #include <ppl.h>
 #include <concurrent_vector.h>
 

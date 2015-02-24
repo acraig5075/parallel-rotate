@@ -2,4 +2,4 @@
 
 #include "Structures.h"
 
-CadPolygon MakePolygon(int density, float width, float extent);
+CadPolygon MakePolygon(float width);

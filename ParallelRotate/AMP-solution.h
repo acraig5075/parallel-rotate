@@ -9,6 +9,7 @@
 extern Settings settings;
 
 void AMPRuntimeWarmup();
+
 void RotateUsingAMP(const std::vector<CadPt3> &points, float step);
 void RotateUsingAMPEx(const std::vector<CadPt3> &points, float radians);
 
@@ -19,3 +20,4 @@ void PointInPolyAMP(const std::vector<CadPt2> &points, const CadPolygon &polygon
 bool PointInPolyAMPEx(const CadPt2 &pt, const CadPolygon &polygon, concurrency::array_view<const concurrency::graphics::float_4, 1> &aPolygon);
 
 void CheckDuplicatesUsingAMP(const std::vector<CadPt2ID> &points, int gridSize);
+

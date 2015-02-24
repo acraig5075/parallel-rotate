@@ -11,6 +11,7 @@ const int kSize = 10000; // no. of points for rotation
 const bool kVerify = false; // whether to perform (slow) tests on correctness of results
 const float kStep = 1.f; // degree increment for rotation
 const int kSquare = 400; // matrix dimension for multiplication
+const float kDensity = 0.1f; // grid density for point-in-poly sample
 const int kGrid = 100; // square grid size for duplicates
 
 
@@ -20,6 +21,7 @@ Settings::Settings()
 	RotationDegreeStep = kStep;
 	MultiplicationMatSize = kSquare;
 	DuplicatesGridSize = kGrid;
+	PointInPolyGridDensity = kDensity;
 }
 
 
@@ -155,6 +157,8 @@ void Settings::Read()
 				RotationDegreeStep = FloatValue(value);
 			else if (name == "MULTIPLICATION-MAT-SIZE")
 				MultiplicationMatSize = IntegerValue(value);
+			else if (name == "POINT-IN-POLY-GRID-DENSITY")
+				PointInPolyGridDensity = FloatValue(value);
 			else if (name == "POINT-IN-POLY-WHICH-LOOP")
 				PointInPolyWhichLoop = InnerOuterValue(value);
 			else if (name == "DUPLICATES-GRID-SIZE")

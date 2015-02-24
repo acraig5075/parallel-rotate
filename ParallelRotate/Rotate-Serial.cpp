@@ -1,8 +1,6 @@
 #include "Serial-solution.h"
 #include "Structures.h"
 #include "Verify.h"
-#include <cassert>
-#include <iostream>
 
 void RotateSerially(const std::vector<CadPt3> &points, float step)
 {
@@ -14,12 +12,12 @@ void RotateSeriallyEx(const std::vector<CadPt3> &points, float radians)
 {
 	auto rotation = CadMatrix3::MakeRotationZ(radians);
 
-	for (auto it = points.begin(); it != points.end(); ++it)
+	for (auto p : points)
 	{
-		CadPt3 pt = rotation.Multiply(*it);
+		CadPt3 r = rotation.Multiply(p);
 		
 		if (settings.Verify)
-			Verify(*it, radians, pt);
+			Verify(p, radians, r);
 	}
 }
 

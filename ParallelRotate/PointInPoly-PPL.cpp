@@ -1,36 +1,20 @@
 #include "PPL-solution.h"
 #include "Structures.h"
-#include "Serial-solution.h"
 #include "Verify.h"
-#include <algorithm>
+#include "Serial-solution.h"
 #include <ppl.h>
 #include <concurrent_vector.h>
 
 
+// Serial outer loop, and parallel inner point-in-poly test
 void PointInPolyPPL(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
 {
-	if (settings.PointInPolyWhichLoop == Settings::ParalleliseInnerLoop)
+	for (auto pt : points)
 	{
-		// parallelise inner loop, point-in-point test
-		for (auto pt : points)
-		{
-			bool inside = PointInPolyPPLEx(pt, polygon);
+		bool inside = PointInPolyPPLEx(pt, polygon);
 
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		}
-	}
-	else
-	{
-		// parallelise outer loop, serial point-in-point test
-		concurrency::parallel_for_each(points.begin(), points.end(),
-			[&](const CadPt2 &pt)
-		{
-			bool inside = PointInPolySeriallyEx(pt, polygon);
-
-			if (settings.Verify)
-				Verify(pt, width, extent, inside);
-		});
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
 	}
 }
 
@@ -56,3 +40,17 @@ bool PointInPolyPPLEx(const CadPt2 &pt, const CadPolygon &polygon)
 	auto val = inout.combine(std::plus<int>());
 	return (0 == val ? false : (bool)(0 != val % 2));
 }
+
+// Parallel outer loop, serial inner point-in-poly test
+void PointInPolyPPL2(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
+{
+	concurrency::parallel_for_each(points.begin(), points.end(),
+		[&](const CadPt2 &pt)
+	{
+		bool inside = PointInPolySeriallyEx(pt, polygon);
+
+		if (settings.Verify)
+			Verify(pt, width, extent, inside);
+	});
+}
+
