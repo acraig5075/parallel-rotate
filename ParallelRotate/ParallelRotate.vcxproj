@@ -94,7 +94,6 @@
     <ClInclude Include="Verify.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AMP-solution.cpp" />
     <ClCompile Include="Duplicates-AMP.cpp" />
     <ClCompile Include="Duplicates-OMP.cpp">
       <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
@@ -109,10 +108,6 @@
     </ClCompile>
     <ClCompile Include="Multiply-PPL.cpp" />
     <ClCompile Include="Multiply-Serial.cpp" />
-    <ClCompile Include="OMP-solution.cpp">
-      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
-      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
-    </ClCompile>
     <ClCompile Include="ParallelRotate.cpp" />
     <ClCompile Include="PointInPoly-AMP.cpp" />
     <ClCompile Include="PointInPoly-OMP.cpp">
@@ -122,8 +117,10 @@
     <ClCompile Include="PointInPoly-PPL.cpp" />
     <ClCompile Include="PointInPoly-Serial.cpp" />
     <ClCompile Include="Polygon.cpp" />
-    <ClCompile Include="PPL-solution.cpp" />
-    <ClCompile Include="Serial-solution.cpp" />
+    <ClCompile Include="Rotate-AMP.cpp" />
+    <ClCompile Include="Rotate-OMP.cpp" />
+    <ClCompile Include="Rotate-PPL.cpp" />
+    <ClCompile Include="Rotate-Serial.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Structures.cpp" />
     <ClCompile Include="stdafx.cpp" />
