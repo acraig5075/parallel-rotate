@@ -8,16 +8,19 @@
 using namespace concurrency;
 using namespace graphics;
 
-float RowMultiply(float col1, float col2, float col3, float x, float y, float z) restrict(amp);
 std::vector<float> TranslateFromCadPt3(const std::vector<CadPt3> &points);
 std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates);
-std::vector<float_4> TranslateFromPolygon(const CadPolygon &polygon);
 
 
 void RotateUsingAMP(const std::vector<CadPt3> &points, float step)
 {
 	for (float d = step; d <= 360.f; d += step)
 		RotateUsingAMPEx(points, degToRad(d));
+}
+
+float RowMultiply(float col1, float col2, float col3, float x, float y, float z) restrict(amp)
+{
+	return x * col1 + y * col2 + z * col3;
 }
 
 void RotateUsingAMPEx(const std::vector<CadPt3> &points, float radians)
@@ -62,11 +65,6 @@ void AMPRuntimeWarmup()
 }
 
 
-float RowMultiply(float col1, float col2, float col3, float x, float y, float z) restrict(amp)
-{
-	return x * col1 + y * col2 + z * col3;
-}
-
 std::vector<float> TranslateFromCadPt3(const std::vector<CadPt3> &points)
 {
 	std::vector<float> ordinates;
@@ -100,195 +98,3 @@ std::vector<CadPt3> TranslateToCadPt3(const std::vector<float> &ordinates)
 	return points;
 }
 
-void MultiplyUsingAMP(const std::vector<float> &a, const std::vector<float> &b)
-{
-	const std::vector<float> result = MultiplyUsingAMPEx(a, b);
-
-	if (settings.Verify)
-		Verify(result);
-}
-
-std::vector<float> MultiplyUsingAMPEx(const std::vector<float> &a, const std::vector<float> &b)
-{
-	auto side = static_cast<size_t>(std::sqrt(a.size()));
-
-	std::vector<float> result(a.size());
-
-	array_view<const float, 2> av(side, side, a);
-	array_view<const float, 2> bv(side, side, b);
-	array_view<float, 2> resultv(side, side, result);
-	resultv.discard_data();
-
-	parallel_for_each(resultv.extent, [=](index<2> idx) restrict(amp)
-	{
-		size_t r = idx[0];
-		size_t c = idx[1];
-
-		float sum = 0.f;
-		for (size_t k = 0; k < side; ++k)
-		{
-			sum += av[r][k] + bv[k][c];
-		}
-
-		resultv[r][c] = sum;
-	});
-
-	resultv.synchronize();
-	return result;
-}
-
-void SanityTest(const CadPolygon &polygon, float width, float extent, array_view<const float_4, 1> &aPolygon)
-{
-	bool inside = false;
-	CadPt2 pt(5.f, 5.f);
-
-	for (int i = 0; i < 9; ++i)
-	{
-		assert(inside == PointInPolyAMPEx(pt, polygon, aPolygon));
-		Verify(pt, width, extent, inside);
-
-		pt.x += 10.f;
-		pt.y += 10.f;
-		inside = !inside;
-	}
-
-	pt.x = 10.1f;
-	pt.y = 20.1f;
-	assert(false == PointInPolyAMPEx(pt, polygon, aPolygon));
-	Verify(pt, width, extent, false);
-}
-
-void PointInPolyAMP(const std::vector<CadPt2> &points, const CadPolygon &polygon, float width, float extent)
-{
-	return; // fixme, not working
-
-	auto vPolygon = TranslateFromPolygon(polygon);
-	array_view<const float_4, 1> av(polygon.size(), vPolygon);
-
-	for (auto pt : points)
-	{
-		bool inside = PointInPolyAMPEx(pt, polygon, av);
-
-		if (settings.Verify)
-			Verify(pt, width, extent, inside);
-	}
-}
-
-bool PointInPolyAMPEx(const CadPt2 &pt, const CadPolygon &polygon, array_view<const float_4, 1> &aPolygon)
-{
-	std::vector<int> vInout(polygon.size());
-	array_view<int, 1> aInout(polygon.size(), vInout);
-	aInout.discard_data();
-
-	parallel_for_each(aInout.extent, [=](index<1> idx) restrict(amp)
-	{
-		int i = idx[0];
-		auto edge = aPolygon[i];
-		float fst[] = { edge.r, edge.g };
-		float snd[] = { edge.b, edge.a };
-
-		if (((fst[1] <= pt.y) && (pt.y < snd[1])) ||
-			((snd[1] <= pt.y) && (pt.y < fst[1])))
-		{
-			float tdbl1;
-			if (snd[1] == fst[1])
-				tdbl1 = (pt.y - fst[1] / 0.0000001f);
-			else
-				tdbl1 = (pt.y - fst[1] / snd[1] - fst[1]);
-			float tdbl2 = snd[0] - fst[0];
-			if ((fst[0] + (tdbl2 * tdbl1) >= pt.x))
-				aInout[i] = 1;
-			else
-				aInout[i] = 0;
-		}
-	});
-
-	aInout.synchronize();
-	int inout = 0;
-	std::accumulate(vInout.begin(), vInout.end(), inout);
-	return (0 == inout ? false : (bool)(0 != inout % 2));
-}
-
-std::vector<float_4> TranslateFromPolygon(const CadPolygon &polygon)
-{
-	std::vector<float_4> ret;
-	ret.reserve(polygon.size());
-
-	for (auto edge : polygon)
-	{
-		float_4 f(edge.first.x, edge.first.y, edge.second.x, edge.second.y);
-		ret.push_back(f);
-	}
-
-	return ret;
-}
-
-auto TranslateFromCadPt2ID(const std::vector<CadPt2ID> &points) -> std::vector<float_3>
-{
-	std::vector<float_3> v;
-	std::transform(points.begin(), points.end(), std::back_inserter(v), [](const CadPt2ID &p)
-	{
-		return float_3(p.pt.x, p.pt.y, static_cast<float>(p.id) + 0.1F);
-	});
-	return v;
-}
-
-auto TranslateToIntPairs(const std::vector<int_2> &duplicates) -> std::vector<std::pair<int, int>>
-{
-	std::vector<std::pair<int, int>> v;
-	std::transform(duplicates.begin(), duplicates.end(), std::back_inserter(v), [](const int_2 &p)
-	{
-		return std::make_pair(p.x, p.y);
-	});
-	return v;
-
-}
-
-void CheckDuplicatesUsingAMP(const std::vector<CadPt2ID> &points, int gridSize)
-{
-	size_t nPoints = points.size();
-
-	std::vector<int_2> stdDuplicates(nPoints);
-	concurrency::array_view<int_2, 1> ampDuplicates(nPoints, stdDuplicates);
-
-	std::vector<float_3> stdPoints = TranslateFromCadPt2ID(points);
-	concurrency::array_view<const float_3, 1> ampPoints(nPoints, stdPoints);
-
-	parallel_for_each(ampPoints.extent, [=](index<1> idx) restrict(amp)
-	{
-		float_3 outerPt = ampPoints[idx[0]];
-		int outerID = static_cast<int>(outerPt.b);
-
-		for (unsigned int i = 0; i < ampPoints.extent.size(); ++i)
-		{
-			float_3 innerPt = ampPoints[i];
-			int innerID = static_cast<int>(innerPt.b);
-
-			if (innerID != outerID && (innerPt.x == outerPt.x && innerPt.y == outerPt.y)) // coordinates are the same, but id's are different
-			{
-				ampDuplicates[idx[0]].x = innerID;
-				ampDuplicates[idx[0]].y = outerID;
-			}
-		}
-	});
-
-	ampDuplicates.synchronize();
-
-	auto duplicates = TranslateToIntPairs(stdDuplicates);
-
-	// Remove default zeroed entries
-	auto emptyPair = std::make_pair(0, 0);
-	duplicates.erase(std::remove(duplicates.begin(), duplicates.end(), emptyPair), duplicates.end());
-
-	// Ensure first member of pair is less than second
-	std::transform(duplicates.begin(), duplicates.end(), duplicates.begin(), &OrderPair);
-
-	// Sort vector to get pairs ordered adjacent to each other
-	std::sort(duplicates.begin(), duplicates.end(), &ComparePairs);
-
-	// The vector now contains a,b entries as well as b,a. Ensure uniqueness.
-	duplicates.erase(std::unique(duplicates.begin(), duplicates.end()), duplicates.end());
-
-	if (settings.Verify)
-		Verify(duplicates, gridSize);
-}

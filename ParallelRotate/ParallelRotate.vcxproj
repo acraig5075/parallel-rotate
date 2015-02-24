@@ -95,11 +95,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AMP-solution.cpp" />
+    <ClCompile Include="Duplicates-AMP.cpp" />
+    <ClCompile Include="Duplicates-OMP.cpp">
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
+    </ClCompile>
+    <ClCompile Include="Duplicates-PPL.cpp" />
+    <ClCompile Include="Duplicates-Serial.cpp" />
+    <ClCompile Include="Multiply-AMP.cpp" />
+    <ClCompile Include="Multiply-OMP.cpp">
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
+    </ClCompile>
+    <ClCompile Include="Multiply-PPL.cpp" />
+    <ClCompile Include="Multiply-Serial.cpp" />
     <ClCompile Include="OMP-solution.cpp">
       <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
       <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
     </ClCompile>
     <ClCompile Include="ParallelRotate.cpp" />
+    <ClCompile Include="PointInPoly-AMP.cpp" />
+    <ClCompile Include="PointInPoly-OMP.cpp">
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
+      <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OpenMPSupport>
+    </ClCompile>
+    <ClCompile Include="PointInPoly-PPL.cpp" />
+    <ClCompile Include="PointInPoly-Serial.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="PPL-solution.cpp" />
     <ClCompile Include="Serial-solution.cpp" />
